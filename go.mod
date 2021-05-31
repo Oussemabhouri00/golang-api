@@ -1,4 +1,4 @@
-module github.com/eddiezane/hello-client-go
+module github.com/Oussemabhouri00/golang-api
 
 go 1.15
 

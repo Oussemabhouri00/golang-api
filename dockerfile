@@ -1,24 +1,20 @@
-FROM golang:latest 
+# Start from golang base image
+FROM golang:alpine 
 
-RUN mkdir /build
-WORKDIR /build
+#ENV GO111MODULE=on
+RUN mkdir /app
+RUN mkdir /app/temp
 
-COPY go.mod .
+COPY . /app/temp
 
-COPY go.sum . 
+WORKDIR /app/temp
 
-RUN go mod download 
 
-COPY . .
+COPY go.mod ./
+COPY go.sum ./
 
-RUN  export GO111MODULE=on
-RUN go get github.com/Oussemabhouri00/golang-api/master
-RUN cd /build && git clone https://github.com/Oussemabhouri00/golang-api.git
+RUN go mod download
 
-RUN cd/buid/temp && go build
+RUN go build -o main .
 
-EXPOSE 10000
-
-RUN go build 
-
-ENTRYPOINT ["/build/temp"]
+CMD ["/app/temp/main"]
