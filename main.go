@@ -48,6 +48,7 @@ func createNewPod(w http.ResponseWriter, r *http.Request) {
 
 	//esm_el_pod=reqbody.podname
 	//esmelcontainer=reqbody.containername
+	//llllllllllllll kkkkk
 	rules := clientcmd.NewDefaultClientConfigLoadingRules()
 	kubeconfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(rules, &clientcmd.ConfigOverrides{})
 	config, err := kubeconfig.ClientConfig()
