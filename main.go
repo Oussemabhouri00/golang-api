@@ -13,7 +13,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/rest"
 )
 
 type Pod struct {
@@ -45,14 +45,17 @@ func createNewPod(w http.ResponseWriter, r *http.Request) {
 	reqBody, _ := ioutil.ReadAll(r.Body)
 	var pod Pod
 	json.Unmarshal(reqBody, &pod)
-
-	rules := clientcmd.NewDefaultClientConfigLoadingRules()
-	kubeconfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(rules, &clientcmd.ConfigOverrides{})
-	config, err := kubeconfig.ClientConfig()
+	// creates the in-cluster config
+	config, err := rest.InClusterConfig()
 	if err != nil {
-		panic(err)
+		panic(err.Error())
 	}
-	clientset := kubernetes.NewForConfigOrDie(config)
+	// creates the clientset
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		panic(err.Error())
+	}
+
 	newPod := &corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: pod.PodName,
@@ -66,9 +69,6 @@ func createNewPod(w http.ResponseWriter, r *http.Request) {
 	createdPod, err := clientset.CoreV1().Pods("pg-namespace").Create(context.Background(), newPod, metav1.CreateOptions{})
 
 	fmt.Println(createdPod)
-	Pods = []Pod{
-		Pod{PodName: "Hello", ContainerName: "Pod ContainerName", ContainerImage: "Pod ContainerImage"},
-	}
 
 	fmt.Fprintf(w, "%+v", string(pod.PodName))
 }
@@ -100,6 +100,9 @@ func main() {
 		if err != nil {
 			panic(err)
 		}*/
+	Pods = []Pod{
+		Pod{PodName: "Hello", ContainerName: "Pod ContainerName", ContainerImage: "Pod ContainerImage"},
+	}
 
 	handleRequests()
 }
