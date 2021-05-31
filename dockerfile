@@ -1,6 +1,7 @@
 FROM golang:latest 
 
-WORKDIR /app
+RUN mkdir /build
+WORKDIR /build
 
 COPY go.mod .
 
@@ -10,8 +11,14 @@ RUN go mod download
 
 COPY . .
 
-ENV port 8082
+RUN  export GO111MODULE=on
+RUN go get github.com/Oussemabhouri00/golang-api/master
+RUN cd /build && git clone https://github.com/Oussemabhouri00/golang-api.git
+
+RUN cd/buid/temp && go build
+
+EXPOSE 10000
 
 RUN go build 
 
-ENTRYPOINT ["/bin/bash"]
+ENTRYPOINT ["/build/temp"]

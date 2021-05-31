@@ -46,8 +46,6 @@ func createNewPod(w http.ResponseWriter, r *http.Request) {
 	var pod Pod
 	json.Unmarshal(reqBody, &pod)
 
-	//esm_el_pod=reqbody.podname
-	//esmelcontainer=reqbody.containername
 	rules := clientcmd.NewDefaultClientConfigLoadingRules()
 	kubeconfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(rules, &clientcmd.ConfigOverrides{})
 	config, err := kubeconfig.ClientConfig()
