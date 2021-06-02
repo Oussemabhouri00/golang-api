@@ -20,6 +20,11 @@ type Pod struct {
 	PodName        string `json:"PodName"`
 	ContainerName  string `json:"ContainerName"`
 	ContainerImage string `json:"ContainerImage"`
+	PodNamespace   string `json:"Namespace"`
+}
+
+type Namespace struct {
+	NsName string `json:"NsName"`
 }
 
 var Pods []Pod
@@ -62,15 +67,40 @@ func createNewPod(w http.ResponseWriter, r *http.Request) {
 		},
 		Spec: corev1.PodSpec{
 			Containers: []corev1.Container{
-				{Name: "nginx", Image: "nginx:latest", Command: []string{"sleep", "100000"}},
+				{Name: pod.ContainerName, Image: pod.ContainerImage, Command: []string{"sleep", "100000"}},
 			},
 		},
 	}
-	createdPod, err := clientset.CoreV1().Pods("pg-namespace").Create(context.Background(), newPod, metav1.CreateOptions{})
+
+	createdPod, err := clientset.CoreV1().Pods(pod.PodNamespace).Create(context.Background(), newPod, metav1.CreateOptions{})
 
 	fmt.Println(createdPod)
-
 	fmt.Fprintf(w, "%+v", string(pod.PodName))
+}
+
+func createNewNamespace(w http.ResponseWriter, r *http.Request) {
+
+	reqBody, _ := ioutil.ReadAll(r.Body)
+	var namespace Pod
+	json.Unmarshal(reqBody, &namespace)
+	config, err := rest.InClusterConfig()
+	if err != nil {
+		panic(err.Error())
+	}
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	newNamespace := &corev1.Namespace{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "My-namespacee",
+		},
+	}
+
+	createdNs, err := clientset.CoreV1().Namespaces().Create(context.Background(), newNamespace, metav1.CreateOptions{})
+	fmt.Println(createdNs)
+
 }
 
 func handleRequests() {
@@ -82,7 +112,8 @@ func handleRequests() {
 	// argument
 	myRouter.HandleFunc("/", homePage)
 	myRouter.HandleFunc("/pods", returnAllPods).Methods("GET")
-	myRouter.HandleFunc("/pod", createNewPod).Methods("POST")
+	//myRouter.HandleFunc("/pod", createNewPod).Methods("POST")
+	myRouter.HandleFunc("/namespace", createNewNamespace).Methods(("POST"))
 	log.Fatal(http.ListenAndServe(":10000", myRouter))
 }
 
