@@ -55,7 +55,7 @@ func createNewPod(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err.Error())
 	}
-	// creates the clientsett
+	// creates the clientsettt
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		panic(err.Error())
