@@ -1,5 +1,5 @@
 # Start from golang base image
-FROM golang:latest
+FROM golang:alpine
 # Add Maintainer Info
 #LABEL maintainer="Rajeev Singh <rajeevhub@gmail.com>"
 # Set the Current Working Directory inside the container
